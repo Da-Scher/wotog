@@ -31,11 +31,25 @@ pub fn find_wotog_dir(dir: std::path::PathBuf) -> Result<std::path::PathBuf, std
  *  - Option<String>: config_changes    -- the changes to the config file
  *  Returns a Result of Ok(()) or Err(std::io::Error)
 **/
-pub fn wotog_init(debug_level: u8, config_changes: Option<String>) -> Result<(), std::io::Error> {
+pub fn wotog_init(path: Option<std::path::PathBuf>, debug_level: u8, config_changes: Option<String>) -> Result<(), std::io::Error> {
     if debug_level == 2 {
         println!("Wotog Init Command");
     }
-    let _ = match find_wotog_dir(std::env::current_dir().unwrap()) {
+    let dir = match path {
+        Some(p) => {
+            if debug_level == 2 {
+                println!("wotog init path: {:?}", p);
+            }
+            p  
+        },
+        None => {
+            if debug_level == 2 {
+                println!("wotog init path: starting from current directory.");
+            }
+            std::env::current_dir().unwrap()
+        },
+    };
+    let _ = match find_wotog_dir(dir.clone()) {
         Ok(p) => {
             if debug_level == 2 {
                 println!("wotog already initialized for this project.");
@@ -48,14 +62,9 @@ pub fn wotog_init(debug_level: u8, config_changes: Option<String>) -> Result<(),
             }
         } 
     };
-    // start from the current directory
-    let cwd: std::path::PathBuf = match std::env::current_dir() {
-        Ok(d) => d,
-        Err(e) => panic!("{e}"),
-    };
     // find .git directory
     // TODO: should wotog init run 'git init' at cwd if no .git directory is found?
-    let root_dir = match git::find_git_dir(cwd) {
+    let root_dir = match git::find_git_dir(dir.clone()) {
         Ok(path) => path,
         Err(e)   => panic!("Error occured: {e}"),
     };
@@ -104,5 +113,13 @@ fn wotog_create_config(dir: std::path::PathBuf, changes: Option<String>, debug_l
         Err(e) => panic!("error: {}", e),
 
     };
+    return Ok(());
+}
+
+pub fn wotog_add(paths: Vec<std::path::PathBuf>, debug_level: u8) -> Result<(), std::io::Error> {
+    if debug_level == 2 {
+        println!("wotog add command:\npaths: {:?}", paths);
+    }
+    
     return Ok(());
 }

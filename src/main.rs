@@ -24,6 +24,8 @@ enum Commands{
     Init {
         #[arg(short('n'), long("no-shell"))]
         no_shell: Option<bool>,
+        #[arg(short = 'p', long = "path")]
+        path: Option<std::path::PathBuf>,
         #[arg(short = 'c', long = "config")]
         config: Option<String>,
     },
@@ -49,11 +51,11 @@ fn main() {
                 println!("wotog add command:\npaths: {:?}", paths);
             }
         },
-        Some(Commands::Init { no_shell, config }) => {
+        Some(Commands::Init { no_shell, path, config }) => {
             if verbosity == 2 {
                 println!("wotog init command:\nno_shell: {:?}\nconfig: {:?}", no_shell, config);
             }
-            let _ = match wotog::wotog_init(verbosity, config.clone()) {
+            let _ = match wotog::wotog_init(path.clone(), verbosity, config.clone()) {
                 Ok(_) => {
                     println!("Init command");
                 },
