@@ -57,7 +57,10 @@ pub fn wotog_init(debug_level: u8, config_changes: Option<String>) -> Result<(),
             if debug_level == 2 { 
                 println!("creating config toml at {}", root_dir.join(".wotog").join("config.toml").display());
             }
-            wotog_create_config(wotog_dir, config_changes, debug_level);
+            let _  = match wotog_create_config(wotog_dir, config_changes, debug_level) {
+                Ok(_) => {},
+                Err(e) => panic!("{}", e),
+            };
 
         },
         Err(e) => panic!("{}", e),

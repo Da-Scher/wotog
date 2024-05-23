@@ -45,14 +45,28 @@ fn main() {
     };
     match &cli.commands {
         Some(Commands::Add { paths }) => {
-            println!("Add command");
+            if verbosity == 2 {
+                println!("wotog add command:\npaths: {:?}", paths);
+            }
         },
         Some(Commands::Init { no_shell, config }) => {
-            wotog::wotog_init(verbosity, config.clone());
+            if verbosity == 2 {
+                println!("wotog init command:\nno_shell: {:?}\nconfig: {:?}", no_shell, config);
+            }
+            let _ = match wotog::wotog_init(verbosity, config.clone()) {
+                Ok(_) => {
+                    println!("Init command");
+                },
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                },
+            };
         },
         Some(Commands::Config { change }) => {
-            println!("Config command");
+            if verbosity == 2 {
+                println!("wotog config command:\nchange: {:?}", change);
+            }
         },
-        None => todo!(),
+        None => {},
     }
 }
