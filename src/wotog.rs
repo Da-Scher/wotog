@@ -6,7 +6,6 @@ mod git;
  *  Returns a Result of Ok(std::path::PathBuf) or Err(std::io::Error)
 **/
 pub fn find_wotog_dir(dir: std::path::PathBuf) -> Result<std::path::PathBuf, std::io::Error> {
-    println!("{}", dir.display());
     // go back a directory until you see that the ".git" directory is a neighbor
     let _ = match std::fs::read_dir(&dir) {
         Ok(_) => {
@@ -55,6 +54,7 @@ pub fn wotog_init(debug_level: u8, config_changes: Option<String>) -> Result<(),
         Err(e) => panic!("{e}"),
     };
     // find .git directory
+    // TODO: should wotog init run 'git init' at cwd if no .git directory is found?
     let root_dir = match git::find_git_dir(cwd) {
         Ok(path) => path,
         Err(e)   => panic!("Error occured: {e}"),
