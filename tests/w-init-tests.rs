@@ -38,8 +38,8 @@ fn test_wotog_init() {
         Ok(_) => {},
         Err(e) => panic!("couldn't complete wotog init :: {}", e),
     };
-    assert!(std::path::Path::new(".wotog").exists());
-    assert!(std::path::Path::new(".wotog").join("config.toml").exists());
+    assert!(tmp_dir.path().join(".wotog").exists());
+    assert!(tmp_dir.path().join(".wotog").join("config.toml").exists());
 }
 
 #[test]
@@ -55,4 +55,28 @@ fn test_wotog_init_with_path() {
     };
     assert!(tmp_dir.path().join(".wotog").exists());
     assert!(tmp_dir.path().join(".wotog").join("config.toml").exists());
+}
+
+#[test]
+fn test_wotog_init_find_git_dir() {
+    let tmp_dir = tempdir::TempDir::new("t").unwrap();
+    let deep_tmp_dir = tempdir::TempDir::new_in(tmp_dir.path(), "deep").unwrap();
+    let _ = match std::env::set_current_dir(deep_tmp_dir.path()) {
+        Ok(_) => {},
+        Err(e) => panic!("couldn't change directory to t :: {}", e),
+    };
+    let _ = match std::fs::create_dir(tmp_dir.path().join(".git")) {
+        Ok(_) => {},
+        Err(e) => panic!("couldn't create dummy .git directory :: {}", e),
+    };
+    let _ = match wotog::wotog_init(None, 2, None) {
+        Ok(_) => {},
+        Err(e) => panic!("couldn't complete wotog init :: {}", e),
+    };
+    let _ = match std::env::set_current_dir(tmp_dir.path()) {
+        Ok(_) => {},
+        Err(e) => panic!("couldn't change directory to t :: {}", e),
+    };
+    assert!(std::path::Path::new(".wotog").exists());
+    assert!(std::path::Path::new(".wotog").join("config.toml").exists());
 }
