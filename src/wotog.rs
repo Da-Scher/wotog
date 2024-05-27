@@ -1,5 +1,10 @@
+use std::path;
+
 #[path="git.rs"]
 mod git;
+
+#[path="wo_config.rs"]
+mod wo_config;
 
 /* public function find_wotog_dir( std::path::PathBuf ) -> Result<std::path::PathBuf, std::io::Error> -- find the .wotog directory relative to the .git directory
  *  - std::path::PathBuf: dir           -- the directory to start the search from
@@ -103,8 +108,14 @@ fn wotog_create_config(dir: std::path::PathBuf, changes: Option<String>, debug_l
     if debug_level == 2 {
         println!("wotog_create_config: {:?}, {:?}", dir, changes);
     }
-    // write the config file
-    match std::fs::write(dir.join("config.toml"), "#wotog local configuration\nmotd = \"nice stack, buddy.\"") {
+    let config: wo_config::Config = wo_config::Config::new(dir.clone(), None, None);
+    // serialize the config to a string using serde and toml.
+    let serialized = match toml::to_string(&config) {
+        Ok(s) => s,
+        Err(e) => panic!("{}", e),
+    };
+    // write the serialized config to a file
+    match std::fs::write(dir.join("config.toml"), serialized) {
         Ok(()) => {
             if debug_level == 2 {
                 println!("creating config file.");
